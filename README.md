@@ -122,7 +122,7 @@ Each training script has a thorough description of the parameters and explanatio
 
 
 ### Data
-First, you need to specify your directory with the [the-story-of-heads](./) repo, data directory and train/dev file names.
+First, you need to specify your directory with the [the-story-of-heads](https://github.com/lena-voita/the-story-of-heads) repo, data directory and train/dev file names.
 ```
 REPO_DIR="../" # insert the dir to the the-story-of-heads repo
 DATA_DIR="../" # insert your datadir
