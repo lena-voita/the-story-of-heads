@@ -7,7 +7,7 @@
 
 This is the official repo for the ACL 2019 paper ["Analyzing Multi-Head Self-Attention: Specialized Heads Do the Heavy Lifting, the Rest Can Be Pruned"](https://arxiv.org/abs/1905.09418).
 
-Maybe it's worth to first looking into the [blog post](https://github.com/lena-voita/lena-voita.github.io/posts/acl19_heads.html).
+Read the official [blog post](https://lena-voita.github.io/posts/acl19_heads.html) for the details!
 
 #### Bibtex
 ```
