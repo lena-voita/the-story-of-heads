@@ -106,7 +106,7 @@ After that, checkpoints will be in the `exp_dir_name/build/checkpoint` directory
 
 ---
 ## Notebooks: how to use a model
-In the [noteboooks](./notebooks) folder you can find notebooks showing how to deal with your trained model. From a notebook name it's content has to be clear, but I'll write this just in case.
+In the [notebooks](./notebooks) folder you can find notebooks showing how to deal with your trained model. From a notebook name it's content has to be clear, but I'll write this just in case.
 
 [1_Load_model_and_translate](./notebooks/1_Load_model_and_translate.ipynb) - how to load model and translate sentences;
 
