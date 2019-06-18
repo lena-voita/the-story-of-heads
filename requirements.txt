@@ -1,0 +1,10 @@
+tensorflow-gpu>=1.8.0,<=1.14.0rc0
+bintrees
+horovod
+sortedcontainers
+cffi
+scipy
+regex
+nltk
+subword_nmt
+mosestokenizer
