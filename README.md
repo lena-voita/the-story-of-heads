@@ -38,11 +38,15 @@ In the standard Transformer, results of different attention heads in a layer are
 
 ```MultiHead(Q, K, V ) = Concat(head_i)W^O.```
 
-We would like to disable less important heads completely, i.e. ideally apply `L0` regularization to the number of heads. We modify the original Transformer architecture by multiplying the representation computed by each `head_i` by a scalar gate `g_i`:
+We modify the original Transformer architecture by multiplying the representation computed by each `head_i` by a scalar gate `g_i`:
 
 ```MultiHead(Q, K, V ) = Concat(g_i * head_i)W^O.```
 
-Unlike usual gates, `g_i` are parameters specific to heads and are independent of the input (i.e. the sentence). Each gate `g_i` is a random variable drawn independently from a head-specific [Hard Concrete distribution](https://openreview.net/pdf?id=H1Y8hhg0b). The distributions have non-zero probability mass at 0 and 1; look at the illustration. 
+Unlike usual gates, `g_i` are parameters specific to heads and are independent of the input (i.e. the sentence). As we would like to disable less important heads completely, we would ideally apply `L0` regularization to the scalars `g_i`. The L0 norm equals the number of non-zero components and would push the model to switch off less important heads.
+
+Unfortunately, the L0 norm is nondifferentiable and so cannot be directly incorporated as a regularization term in
+the objective function. Instead, we use a stochastic relaxation.
+Each gate `g_i` is a random variable drawn independently from a head-specific [Hard Concrete distribution](https://openreview.net/pdf?id=H1Y8hhg0b). The distributions have non-zero probability mass at 0 and 1; look at the illustration. 
 
 ![concrete_gif](./resources/concrete_crop.gif)
 
@@ -50,7 +54,9 @@ We use the sum of the probabilities of heads being non-zero (`L_C`) as a stochas
 
 ```L = L_xent + λ * L_C.```
 
-By varying the coefficient `λ` in the optimized objective, we obtain models with different numbers of retained heads. Below is shown how the probabilities of encoder heads being completely closed (P(g_i)=0) change in training for different values of `λ` (pruning starts from a converged model). White color denotes P(g_i=0) = 1, which means that a head is completely removed from the model.
+When applying the regularizer, we start from the converged model trained without the `L_C` penalty (i.e. the parameters are
+initialized with the parameters of the converged model) and then add the gates and continue training the
+full objective. By varying the coefficient `λ` in the optimized objective, we obtain models with different numbers of retained heads. Below is shown how the probabilities of encoder heads being completely closed (P(g_i)=0) change in training for different values of `λ` (pruning starts from a converged model). White color denotes P(g_i=0) = 1, which means that a head is completely removed from the model.
 
 ![enc_head_gif](./resources/enc_head_gif_delay7-min.gif)
 
