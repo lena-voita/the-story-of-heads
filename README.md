@@ -60,7 +60,7 @@ full objective. By varying the coefficient `λ` in the optimized objective, we o
 
 ![enc_head_gif](./resources/enc_head_gif_delay7-min.gif)
 
-(Gif is for model trained on EN-RU WMT. For other datasets, values of `λ` can be different.)
+(Gif is for the model trained on EN-RU WMT. For other datasets, values of `λ` can be different.)
 
 We observe that the model converges to solutions where gates are either almost completely closed or completely open. This means that at test time we can treat the model as a standard Transformer and use only a subset of heads.
 
