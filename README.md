@@ -118,7 +118,7 @@ In the [notebooks](./notebooks) folder you can find notebooks showing how to dea
 
 [2_Look_at_attention_maps](./notebooks/2_Look_at_attention_maps.ipynb) - how to draw attention maps for encoder heads;
 
-[3_Look_which_heads_are_dead](./notebooks/3_Look_which_heads_are_dead.ipynb) - if you are pruning heads, you might want to know which ended up dead; this notebook shows you how to do so.
+[3_Look_which_heads_are_dead](./notebooks/3_Look_which_heads_are_dead.ipynb) - if you are pruning heads, you might want to know which ended up dead; this notebook shows you how to do this.
 
 
 ---
