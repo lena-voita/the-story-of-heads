@@ -1,6 +1,4 @@
 #!/bin/bash
-# this file trains a baseline transformer model on a preprocessed wmt en-ru dataset
-# you should fill in your train_src, train_dst, dev_src, dev_dst and tweak training params at the bottom
 
 REPO_DIR="../" # insert the dir to the the-story-of-heads repo
 DATA_DIR="../" # insert your datadir
