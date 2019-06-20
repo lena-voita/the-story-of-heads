@@ -1,5 +1,4 @@
 #!/bin/bash
-# this file trains a baseline transformer model on a preprocessed dataset
 
 REPO_DIR="../" # insert the dir to the the-story-of-heads repo
 DATA_DIR="../" # insert your datadir
