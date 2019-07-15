@@ -1,11 +1,11 @@
 ## Analyzing Multi-Head Self-Attention: Specialized Heads Do the Heavy Lifting, the Rest Can Be Pruned
 
 
+This is the official repo for the ACL 2019 paper ["Analyzing Multi-Head Self-Attention: Specialized Heads Do the Heavy Lifting, the Rest Can Be Pruned"](https://arxiv.org/abs/1905.09418).
+<img src="./resources/acl_empty.png" title="conf logo"/>
 <img src="./resources/acl19_heads-min_pad.png" 
 	title="paper logo" width="600"/>
 
-
-This is the official repo for the ACL 2019 paper ["Analyzing Multi-Head Self-Attention: Specialized Heads Do the Heavy Lifting, the Rest Can Be Pruned"](https://arxiv.org/abs/1905.09418).
 
 Read the official [blog post](https://lena-voita.github.io/posts/acl19_heads.html) for the details!
 
