@@ -28,7 +28,15 @@ Read the official [blog post](https://lena-voita.github.io/posts/acl19_heads.htm
 
 ## Introduction
 
-Multi-head self-attention is a key component of the Transformer, a state-of-the-art architecture for neural machine translation. In this work we evaluate the contribution made by individual attention heads in the encoder to the overall performance of the model and analyze the roles played by them. We find that the most important and confident heads play consistent and often linguistically-interpretable roles. When pruning heads using a method based on stochastic gates and a differentiable relaxation of the L0 penalty, we observe that specialized heads are last to be pruned. Our novel pruning method removes the vast majority of heads without seriously affecting performance. For example, on the English-Russian WMT dataset, pruning 38 out of 48 encoder heads results in a drop of only 0.15 BLEU.
+In the paper, we:
+
+* evaluate the importance of attention heads in Transformer,
+
+* identify functions of the most important encoder heads,
+
+* prune the vast majority of attention heads in Transformer without seriously affecting quality using a method based on stochastic gates and a differentiable relaxation of the L0 penalty,
+
+* show which types of model attention are most sensitive to the number of attention heads and on which layers.
 
 In this repo, we provide code and describe steps needed to reproduce our experiments with the L0 head pruning.
 
@@ -85,7 +93,7 @@ Here is an example of how to tokenize (and lowercase) you data:
 cat text_lines.en | moses-tokenizer en | python3 -c "import sys; print(sys.stdin.read().lower())" > text_lines.en.tok
 ```
 
-For the OpenSubtitles18 dataset, you do not need this step since the data is already tokenized.
+For the OpenSubtitles18 dataset, you do not need this step since the data is already tokenized (you can just lowercase it).
 
 ### BPE-ization
 Learn BPE rules:
