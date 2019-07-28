@@ -1,7 +1,7 @@
 ## The Story of Heads
 
 
-This is the official repo for the ACL 2019 paper ["Analyzing Multi-Head Self-Attention: Specialized Heads Do the Heavy Lifting, the Rest Can Be Pruned"](https://arxiv.org/abs/1905.09418).
+This is the official repo for the ACL 2019 paper ["Analyzing Multi-Head Self-Attention: Specialized Heads Do the Heavy Lifting, the Rest Can Be Pruned"](https://www.aclweb.org/anthology/P19-1580).
 <img src="./resources/acl_empty.png" title="conf logo"/>
 <img src="./resources/acl19_heads-min_pad.png" 
 	title="paper logo" width="600"/>
@@ -23,6 +23,8 @@ Read the official [blog post](https://lena-voita.github.io/posts/acl19_heads.htm
     year = "2019",
     address = "Florence, Italy",
     publisher = "Association for Computational Linguistics",
+    url = "https://www.aclweb.org/anthology/P19-1580",
+    pages = "5797--5808",
 }
 ```
 
