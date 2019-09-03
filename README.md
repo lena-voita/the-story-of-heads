@@ -15,10 +15,10 @@ Read the official [blog post](https://lena-voita.github.io/posts/acl19_heads.htm
     title = "Analyzing Multi-Head Self-Attention: Specialized Heads Do the Heavy Lifting, the Rest Can Be Pruned",
     author = "Voita, Elena  and
       Talbot, David  and
-      Moiseev, Fedor and
+      Moiseev, Fedor  and
       Sennrich, Rico  and
       Titov, Ivan",
-    booktitle = "Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    booktitle = "Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics",
     month = jul,
     year = "2019",
     address = "Florence, Italy",
