@@ -1,13 +1,16 @@
 ## The Story of Heads
 
 
-This is the official repo for the ACL 2019 paper ["Analyzing Multi-Head Self-Attention: Specialized Heads Do the Heavy Lifting, the Rest Can Be Pruned"](https://www.aclweb.org/anthology/P19-1580).
+This is the official repo for the following papers:
+* [Analyzing Multi-Head Self-Attention: Specialized Heads Do the Heavy Lifting, the Rest Can Be Pruned](https://www.aclweb.org/anthology/P19-1580) (ACL 2019)
+* [Analyzing the Source and Target Contributions to Predictions in Neural Machine Translation](https://arxiv.org/pdf/2010.10907.pdf) - code for this one will appear in November!
 <img src="./resources/acl_empty.png" title="conf logo"/>
 <img src="./resources/acl19_heads-min_pad.png" 
 	title="paper logo" width="600"/>
 
+In this README, we discuss the ACL 2019 heads paper. Read the official [blog post](https://lena-voita.github.io/posts/acl19_heads.html) for the details!
 
-Read the official [blog post](https://lena-voita.github.io/posts/acl19_heads.html) for the details!
+For the contributions paper, look here: [TO BE UPDATED in November]().
 
 #### Bibtex
 ```
