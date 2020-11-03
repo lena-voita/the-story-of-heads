@@ -31,7 +31,30 @@ For the contributions paper, look here: [TO BE UPDATED in November]().
 }
 ```
 
-## Introduction
+Table of Contents
+=================
+
+   * [Introduction](#introduction)
+      * [Pruning Attention Heads](#pruning-attention-heads)
+   * [Experiments](#experiments)
+      * [Requirements](#requirements)
+      * [Data preprocessing](#data-preprocessing)
+         * [Tokenization](#tokenization)
+         * [BPE-ization](#bpe-ization)
+      * [Model training](#model-training)
+      * [Notebooks: how to use a model](#notebooks-how-to-use-a-model)
+      * [Training config tour](#training-config-tour)
+         * [Data](#data)
+         * [Model](#model)
+         * [Problem (loss function)](#problem-loss-function)
+         * [Starting checkpoint](#starting-checkpoint)
+         * [Variables to optimize](#variables-to-optimize)
+         * [Batch size](#batch-size)
+         * [Other options](#other-options)
+   * [Comments](#comments)
+
+
+# Introduction
 
 In the paper, we:
 
