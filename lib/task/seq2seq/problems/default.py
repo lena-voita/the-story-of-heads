@@ -24,7 +24,7 @@ def word_dropout(inp, inp_len, dropout, method, voc):
 
 class DefaultProblem(Problem):
 
-    def __init__(self, models, dump_dir=None, dump_first_n=None, sum_loss=False, use_small_batch_multiplier=False,
+    def __init__(self, models, sum_loss=False, use_small_batch_multiplier=False,
         inp_word_dropout=0, out_word_dropout=0, word_dropout_method='unk',
     ):
         assert len(models) == 1
@@ -35,8 +35,6 @@ class DefaultProblem(Problem):
         self.inp_voc = self.model.inp_voc
         self.out_voc = self.model.out_voc
 
-        self.dump_dir = dump_dir
-        self.dump_first_n = dump_first_n
         self.sum_loss = sum_loss
         self.use_small_batch_multiplier = use_small_batch_multiplier
 

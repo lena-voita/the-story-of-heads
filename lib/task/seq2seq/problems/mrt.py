@@ -1,7 +1,6 @@
 import tensorflow as tf
 import lib
 from lib.task.seq2seq.summary import *
-from lib.ops.dump import tf_dump
 from copy import copy
 import lib.layers.basic
 from lib.layers.basic import infer_length
@@ -73,7 +72,7 @@ class MRTProblem(lib.train.Problem):
         Minimum risk training as defined here: https://www.aclweb.org/anthology/P16-1159.pdf
     """
 
-    def __init__(self, models, dump_dir=None, dump_first_n=None, sum_loss=False, use_small_batch_multiplier=False,
+    def __init__(self, models, sum_loss=False, use_small_batch_multiplier=False,
                  inp_word_dropout=0, out_word_dropout=0, word_dropout_method='unk',
                  hypo_inference_flags={'mode': 'sample', 'sampling_strategy': 'random'},
                  num_hypos=100, alpha=5e-3, target_in_hypos=True, loss_type='minus_bleu',
@@ -89,8 +88,6 @@ class MRTProblem(lib.train.Problem):
         self.inp_voc = self.model.inp_voc
         self.out_voc = self.model.out_voc
 
-        self.dump_dir = dump_dir
-        self.dump_first_n = dump_first_n
         self.sum_loss = sum_loss
         self.use_small_batch_multiplier = use_small_batch_multiplier
 
@@ -231,15 +228,6 @@ class MRTProblem(lib.train.Problem):
             loss_values = - sent_probs_flat * bleu_scores_flat  # [batch_size * (num_hypos + 1)]
         else:
             loss_values = sent_probs_flat * (1 - bleu_scores_flat)  # [batch_size * (num_hypos + 1)]
-
-        if self.dump_dir:
-            dump_map = batch
-
-            loss_values = tf_dump(
-                loss_values,
-                dump_map,
-                self.dump_dir + '/batch_dump_{}.npz',
-                first_n=self.dump_first_n)
 
         counters = dict(
             loss=tf.reduce_sum(loss_values),
