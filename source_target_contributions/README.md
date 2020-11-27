@@ -45,7 +45,7 @@ In NMT, each prediction is based on two types of context: the source and the pre
 
 # Models
 
-For the general training pipeline, see the [explanation in the main README](../README.md). For the experiments with LRP, you have to set the model to `transformer_lrp` as follows:
+For the general training pipeline, see the [explanation in the main README](../README.md). For all experiments with LRP, you have to set the model to `transformer_lrp` as follows:
 
 ```
 params=(
