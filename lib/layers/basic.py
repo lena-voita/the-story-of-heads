@@ -234,8 +234,8 @@ class ResidualLayerWrapper(Wrapper):
                         R_dict = R
                         R = R_dict[main_key]
                 elif s == 'a':
-                    inp, out = rec.get_activations('inp', 'out_pre_residual')
-                    Rinp_residual, R = LRP.relprop(lambda a, b: a + b, None, R, inp, out)
+                    # residual layer: split relevance equally between two branches
+                    Rinp_residual, R = LRP.rescale(R, R, R, batch_axes=tuple(range(R.shape.ndims - 1)))
                 elif s == 'n':
                     R = self.norm_layer.relprop(R)
 
