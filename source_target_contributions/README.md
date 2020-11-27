@@ -19,8 +19,7 @@ For more details, look at the [blog post](https://lena-voita.github.io/posts/sou
 }
 ```
 
-Table of Contents
-=================
+### Table of Contents
 
    * [What is this about?](#what-is-this-about)
    * [Models](#models)
