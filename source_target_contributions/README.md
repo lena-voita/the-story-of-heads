@@ -1,7 +1,7 @@
 ## Analyzing Source and Target Contribution to NMT Predictions
 
 
-<img src="../resources/acl19_heads-min_pad.png" 
+<img src="../resources/src_dst_main.gif" 
 	title="paper logo" width="600"/>
 	
 #### Bibtex
