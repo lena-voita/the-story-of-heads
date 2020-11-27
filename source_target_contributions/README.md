@@ -24,8 +24,8 @@ Table of Contents
 
    * [What is this about?](#what-is-this-about)
    * [Models](#models)
-   	* [Word Dropout](#word-dropout)
-	* [Minimum Risk Training](#minimum-risk-training)
+      * [Word Dropout](#word-dropout)
+      * [Minimum Risk Training](#minimum-risk-training)
    * [Evaluating LRP](#evaluating-lrp)
 
 
@@ -51,11 +51,9 @@ In NMT, each prediction is based on two types of context: the source and the pre
 
 
 # Evaluating LRP
-<img src="../resources/lrp_main-min.png" 
-	title="paper logo" width="500" align="right"/>
 
-In the paper, we show that a natural way to estimate how the source and target contexts contribute to generation is to apply Layerwise Relevance Propagation (LRP) to NMT models. LRP is one of the attributions method originally designed for computer vision models. In general, attribution methods try to identify those parts of the input (e.g. pixels in an input image) which contribute to a given prediction. Layerwise Relevance Propagation does this by recursively propagating a prediction through the network from the output to the input. While the prediction is formed in the forward pass, relevance propagation evaluates relevancies in the backward pass. For more details, look at [the paper](https://arxiv.org/pdf/2010.10907.pdf) or [the blog post](https://lena-voita.github.io/posts/source_target_contributions_to_nmt.html).
 
-[1_Load_model_and_evaluate_LRP](./notebooks/1_Load_model_and_evaluate_LRP.ipynb) - load a model and evaluate LRP for a dataset;
+Here are the useful notebooks:
+* [1_Load_model_and_evaluate_LRP](./notebooks/1_Load_model_and_evaluate_LRP.ipynb) - load a model and evaluate LRP for a dataset;
 
-[2_Load_LRP_results_and_build_graphs](./notebooks/2_Load_LRP_results_and_build_graphs.ipynb) - load LRP results we've built before and plot the graphs.
+* [2_Load_LRP_results_and_build_graphs](./notebooks/2_Load_LRP_results_and_build_graphs.ipynb) - load LRP results we've built before and plot the graphs.
