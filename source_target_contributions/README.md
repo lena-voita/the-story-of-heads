@@ -56,7 +56,7 @@ params=(
 
 ## Baseline
 
-Use the [train_baselin.sh](../scripts/train_baseline.sh) script and set the model to the one I mentioned above.
+Use the [train_baselin.sh](../scripts/train_baseline.sh) script and set the model to `transformer_lrp` (as shown above).
 
 ## Word Dropout
 
