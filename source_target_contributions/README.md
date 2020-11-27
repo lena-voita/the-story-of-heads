@@ -1,33 +1,17 @@
-## The Story of Heads
+## Analyzing Source and Target Contribution to NMT Predictions
 
 
-This is the official repo for the following papers:
-* [Analyzing Multi-Head Self-Attention: Specialized Heads Do the Heavy Lifting, the Rest Can Be Pruned](https://www.aclweb.org/anthology/P19-1580) (ACL 2019)
-* [Analyzing the Source and Target Contributions to Predictions in Neural Machine Translation](https://arxiv.org/pdf/2010.10907.pdf) - code for this one will appear in November!
-<img src="./resources/acl_empty.png" title="conf logo"/>
-<img src="./resources/acl19_heads-min_pad.png" 
+<img src="../resources/src_dst_main.gif" 
 	title="paper logo" width="600"/>
-
-In this README, we discuss the ACL 2019 heads paper. Read the official [blog post](https://lena-voita.github.io/posts/acl19_heads.html) for the details!
-
-For the contributions paper, look here: [TO BE UPDATED in November]().
-
+	
 #### Bibtex
 ```
-@inproceedings{voita-etal-2019-analyzing,
-    title = "Analyzing Multi-Head Self-Attention: Specialized Heads Do the Heavy Lifting, the Rest Can Be Pruned",
-    author = "Voita, Elena  and
-      Talbot, David  and
-      Moiseev, Fedor  and
-      Sennrich, Rico  and
-      Titov, Ivan",
-    booktitle = "Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics",
-    month = jul,
-    year = "2019",
-    address = "Florence, Italy",
-    publisher = "Association for Computational Linguistics",
-    url = "https://www.aclweb.org/anthology/P19-1580",
-    pages = "5797--5808",
+@misc{voita2020analyzing,
+      title={Analyzing the Source and Target Contributions to Predictions in Neural Machine Translation}, 
+      author={Elena Voita and Rico Sennrich and Ivan Titov},
+      year={2020},
+      booktitle = "{{arXiv}:2010.10907}",
+      url = "https://arxiv.org/abs/2010.10907",
 }
 ```
 
