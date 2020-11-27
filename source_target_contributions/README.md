@@ -1,4 +1,4 @@
-## Analyzing Source and Target Contribution to NMT Predictions
+# Analyzing Source and Target Contribution to NMT Predictions
 
 
 <img src="../resources/src_dst_main.gif" 
@@ -23,12 +23,14 @@ Table of Contents
 =================
 
    * [What is this about?](#what-is-this-about)
-   * [Evaluate LRP](#evaluate-lrp)
+   * [Evaluate LRP](#evaluating-lrp)
    * [Models](#models)
 
 
 # What is this about?
 
+<img src="../resources/intro_large-min.png" 
+	title="intro" />
 	
 In NMT, each prediction is based on two types of context: the source and the prefix of the target sentence. We show how to evaluate the relative contributions of source and target to NMT predictions and find that:
 
@@ -39,8 +41,17 @@ In NMT, each prediction is based on two types of context: the source and the pre
 * the training process is non-monotonic with several distinct stages.
 
 
-# Evaluating LRP
-
-
-
 # Models
+
+## Word Dropout
+
+## Minimum Risk Training
+
+
+# Evaluating LRP and Aggregating the Results
+<img src="../resources/lrp_main-min.png" 
+	title="paper logo" width="500" align="right"/>
+
+[1_Load_model_and_evaluate_LRP](./notebooks/1_Load_model_and_evaluate_LRP.ipynb) - load a model and evaluate LRP for a dataset;
+
+[2_Load_LRP_results_and_build_graphs](./notebooks/2_Load_LRP_results_and_build_graphs.ipynb) - load LRP results we've built before and plot the graphs.
