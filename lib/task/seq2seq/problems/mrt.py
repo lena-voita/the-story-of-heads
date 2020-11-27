@@ -5,7 +5,7 @@ from copy import copy
 import lib.layers.basic
 from lib.layers.basic import infer_length
 import nltk
-
+import numpy as np
 
 def pad_to_length(out, length, token):
     assert out.shape.ndims == 3
