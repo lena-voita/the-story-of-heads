@@ -2,7 +2,7 @@ import operator
 from functools import reduce
 
 import tensorflow as tf
-import ..ops.record_activations as rec
+from ..ops import record_activations as rec
 
 
 def jacobian(out, inps):
