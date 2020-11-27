@@ -253,11 +253,11 @@ class MRTProblem(lib.train.Problem):
 
         return value
 
-    def summary_multibatch(self, counters, prefix, is_train):
+    def summary_multibatch(self, counters, prefix):
         res = []
-        res += summarize_common_metrics(counters, prefix, is_train)
-        res += summarize_xent(counters, prefix, is_train)
-        res += summarize_io(counters, prefix, is_train)
+        res += summarize_common_metrics(counters, prefix)
+        res += summarize_xent(counters, prefix)
+        res += summarize_io(counters, prefix)
         return res
 
     def params_summary(self):
