@@ -45,7 +45,30 @@ In NMT, each prediction is based on two types of context: the source and the pre
 
 # Models
 
+For the general training pipeline, see the [explanation in the main README](../README.md). For the experiments with LRP, you have to set the model to `transformer_lrp` as follows:
+
+```
+params=(
+...
+--model lib.task.seq2seq.models.transformer_lrp.Model
+...)
+```
+
+## Baseline
+
+Use the [train_baselin.sh](../scripts/train_baseline.sh) script and set the model to the one I mentioned above.
+
 ## Word Dropout
+
+To use word dropout on the source side, add the following options to the default problem:
+```
+params=(
+    ...
+    --problem lib.task.seq2seq.problems.default.DefaultProblem
+    --problem-opts '{'"'"'inp_word_dropout'"'"': 0.1, '"'"'word_dropout_method'"'"': '"'"'random_word'"'"',}'
+    ...)
+```
+For the dropout on the target side, replace `inp_word_dropout` with `out_word_dropout`.
 
 ## Minimum Risk Training
 
@@ -54,6 +77,6 @@ In NMT, each prediction is based on two types of context: the source and the pre
 
 
 Here are the useful notebooks:
-* [1_Load_model_and_evaluate_LRP](./notebooks/1_Load_model_and_evaluate_LRP.ipynb) - load a model and evaluate LRP for a dataset;
+* [1_Load_model_and_evaluate_LRP](./1_Load_model_and_evaluate_LRP.ipynb) - load a model and evaluate LRP for a dataset;
 
-* [2_Load_LRP_results_and_build_graphs](./notebooks/2_Load_LRP_results_and_build_graphs.ipynb) - load LRP results we've built before and plot the graphs.
+* [2_Load_LRP_results_and_build_graphs](./2_Load_LRP_results_and_build_graphs.ipynb) - load LRP results we've built before and plot the graphs.
