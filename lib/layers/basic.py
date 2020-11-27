@@ -67,16 +67,23 @@ class Dense:
         :param output_relevance: relevance w.r.t. layer output, [*dims, out_size]
         notation from DOI:10.1371/journal.pone.0130140, Eq 60
         """
-        # make two copies of the layer: one with positive params and one with negative
-        clone_self = lambda W, b, activ: Dense(self.name, self.inp_size, self.out_size,
-                                               activ, matrix=W, bias=b)
-        f_positive = clone_self(tf.maximum(self.W, LRP.eps), b=0, activ=nop)
-        f_negative = clone_self(tf.minimum(self.W, -LRP.eps), b=0, activ=nop)  # the dark side of me
 
         with tf.variable_scope(self.scope):
             inp, out = rec.get_activations('inp', 'out')
             # inp: [*dims, inp_size], out: [*dims, out_size]
-            input_relevance = LRP.relprop(f_positive, f_negative, output_relevance, inp)
+
+            linear_self = Dense(self.name, self.inp_size, self.out_size, activ=nop, matrix=self.W, bias=self.b)
+
+            # note: we apply relprop for each independent sample in order to avoid quadratic memory requirements
+            flat_inp = tf.reshape(inp, [-1, tf.shape(inp)[-1]])
+            flat_out_relevance = tf.reshape(output_relevance, [-1, tf.shape(output_relevance)[-1]])
+
+            flat_inp_relevance = tf.map_fn(
+                lambda i: LRP.relprop(linear_self, flat_out_relevance[i, None], flat_inp[i, None],
+                                      jacobians=[tf.transpose(self.W)[None, :, None, :]], batch_axes=(0,))[0],
+                elems=tf.range(tf.shape(flat_inp)[0]), dtype=inp.dtype, parallel_iterations=2 ** 10)
+            input_relevance = LRP.rescale(output_relevance, tf.reshape(flat_inp_relevance, tf.shape(inp)))
+
         return input_relevance
 
     @property
