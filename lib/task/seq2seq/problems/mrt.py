@@ -233,7 +233,7 @@ class MRTProblem(lib.train.Problem):
             loss=tf.reduce_sum(loss_values),
             out_len=tf.to_float(tf.reduce_sum(batch['out_len'])),
         )
-        append_counters_common_metrics(counters, logits, new_batch['out'], new_batch['out_len'])
+        append_counters_common_metrics(counters, logits, new_batch['out'], new_batch['out_len'], is_train)
         append_counters_xent(counters, loss_values, new_batch['out_len'])
         append_counters_io(counters, batch['inp'], batch['out'], batch['inp_len'], batch['out_len'])
         return counters
