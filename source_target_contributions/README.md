@@ -23,6 +23,7 @@ For more details, look at the [blog post](https://lena-voita.github.io/posts/sou
 
    * [What is this about?](#what-is-this-about)
    * [Models](#models)
+      * [Baseline](#baseline)
       * [Word Dropout](#word-dropout)
       * [Minimum Risk Training](#minimum-risk-training)
    * [Evaluating LRP](#evaluating-lrp)
