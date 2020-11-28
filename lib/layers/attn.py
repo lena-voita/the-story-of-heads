@@ -5,7 +5,7 @@ import math
 import lib
 from lib.ops.basic import is_dropout_enabled, dropout
 from lib.ops import record_activations as rec
-from .basic import Dense
+from .basic import Dense, LRP
 
 from lib.layers.concrete_gate import ConcreteGate
 
@@ -151,6 +151,23 @@ class MultiHeadAttn:
 
             return outputs
 
+    def relprop(self, R):
+        with tf.variable_scope(self.scope):
+            assert rec.get_activation('kv') is None, "relprop through translatemodelfast is not implemented"
+            R = self.out_conv.relprop(R)
+            q, k, v, attn_mask = rec.get_activations('q', 'k', 'v', 'attn_mask')
+            # TODO relprop with taylor expansion?
+            Rq, Rk, Rv = LRP.relprop(lambda q, k, v: self.attention_core(q, k, v, attn_mask), None, R, q, k, v)
+
+            if rec.get_activation('is_combined'):
+                Rqkv = tf.concat([Rq, Rk, Rv], axis=2)  # [batch, time, 3 * hid_size]
+                Rinp = self.combined_conv.relprop(Rqkv)
+                return Rinp
+            else:
+                Rkv = tf.concat([Rk, Rv], axis=2)  # [batch, time, 2 * hid_size]
+                Rkvinp = self.kv_conv.relprop(Rkv)
+                Rqinp = self.query_conv.relprop(Rq)
+                return {'query_inp': Rqinp, 'kv_inp': Rkvinp}
 
     def _split_heads(self, x):
         """

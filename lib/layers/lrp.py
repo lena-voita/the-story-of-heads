@@ -1,123 +1,58 @@
-import operator
-from functools import reduce
-
 import tensorflow as tf
 from ..ops import record_activations as rec
 
 
-def jacobian(out, inps):
-    """
-    :param out: a single tensor functionally dependent on all of inps
-    :param inps: list or tuple of tensors w.r.t. which to compute the jacobian
-    :returns: a list of same length as inps, where i-th tensor has shape [*out.shape, *inps[i].shape]
-    :note: for tf 1.10+ use from tensorflow.python.ops.parallel_for.gradients import jacobian
-    """
-    flat_out = tf.reshape(out, [-1])
-    flat_jac_components = tf.map_fn(
-        lambda i: tf.gradients(flat_out[i], inps), tf.range(tf.shape(flat_out)[0]),
-        dtype=[tf.float32] * len(inps))
-
-    jac_components = [tf.reshape(flat_jac, tf.concat([tf.shape(out), tf.shape(inp)], axis=0))
-                      for flat_jac, inp in zip(flat_jac_components, inps)]
-    return jac_components
-
-
 class LRP:
     """ Helper class for layerwise relevance propagation """
-    alpha = 0.5
-    beta = 0.5
-    eps = 1e-5
-    use_alpha_beta = True  # if False, uses simplified LRP rule:  R_i =  R_j * z_ji / ( z_j + eps * sign(z_j) )
-    consider_attn_constant = False  # used by MultiHeadAttn, considers gradient w.r.t q/k zeros
+    alpha = 1.0
+    beta = 0.0
+    eps = 1e-7
+    crop_function = abs
 
     @classmethod
-    def relprop(cls, function, output_relevance, *inps, reference_inputs=None,
-                reference_output=None, jacobians=None, batch_axes=(0,), **kwargs):
+    def relprop(cls, f_positive, f_negative, output_relevance, *inps):
         """
         computes input relevance given output_relevance using z+ rule
         works for linear layers, convolutions, poolings, etc.
         notation from DOI:10.1371/journal.pone.0130140, Eq 60
-        :param function: forward function
+        :param f_positive: forward function with positive weights (if any) and no nonlinearities
+        :param f_negative: forward function with negative weights and no nonlinearities
+            if there's no weights, set f_negative to None. Only used for alpha-beta LRP
         :param output_relevance: relevance w.r.t. layer output
         :param inps: a list of layer inputs
-        :param reference_inputs: \hat x, default values used to evaluate bias relevance.
-            If specified, must be a tuple/list of tensors of the same shape as inps, default = all zeros.
-        :param reference_output: optional pre-computed function(*reference_inputs) to speed up computation
-        :param jacobians: optional pre-computed jacobians to speed up computation, same as jacobians(function(*inps), inps)
-
         """
         assert len(inps) > 0, "please provide at least one input"
         with rec.do_not_record():
             alpha, beta, eps = cls.alpha, cls.beta, cls.eps
-            inps = [inp for inp in inps]
+            inps = [inp + eps for inp in inps]
 
-            reference_inputs = reference_inputs or tuple(map(tf.zeros_like, inps))
-            assert len(reference_inputs) == len(inps)
+            # ouput relevance: [*dims, out_size]
+            z_positive = f_positive(*inps)
+            s_positive = cls.alpha * output_relevance / z_positive  # [*dims, out_size]
+            positive_relevances = tf.gradients(z_positive, inps, grad_ys=s_positive)
+            # ^-- list of [*dims, inp_size]
 
-            output = function(*inps)
-            reference_output = reference_output if reference_output is not None else function(*reference_inputs)
-            assert isinstance(output, tf.Tensor) and isinstance(reference_output, tf.Tensor)
-            flat_output_relevance = tf.reshape(output_relevance, [-1])
-            output_size = tf.shape(flat_output_relevance)[0]
-
-            # 1. compute jacobian w.r.t. all inputs
-            jacobians = jacobians if jacobians is not None else jacobian(output, inps)
-            # ^-- list of [*output_dims, *input_dims] for each input
-            assert len(jacobians) == len(inps)
-
-            jac_flat_components = [tf.reshape(jac, [output_size, -1]) for jac in jacobians]
-            # ^-- list of [output_size, input_size] for each input
-            flat_jacobian = tf.concat(jac_flat_components, axis=-1)  # [output_size, combined_input_size]
-
-            # 2. multiply jacobian by input to get unnormalized relevances, add bias
-            flat_input = tf.concat([tf.reshape(inp, [-1]) for inp in inps], axis=-1)  # [combined_input_size]
-            flat_reference_input = tf.concat([tf.reshape(ref, [-1]) for ref in reference_inputs], axis=-1)
-            num_samples = reduce(operator.mul, [tf.shape(output)[batch_axis] for batch_axis in batch_axes], 1)
-            input_size_per_sample = tf.shape(flat_reference_input)[0] // num_samples
-
-            flat_bias_impact = tf.reshape(reference_output, [-1]) / tf.to_float(input_size_per_sample)
-
-            flat_impact = flat_bias_impact[:, None] + flat_jacobian * (flat_input - flat_reference_input)[None, :]
-            # ^-- [output_size, combined_input_size], aka z_{j<-i}
-
-            if cls.use_alpha_beta:
-                # 3. normalize positive and negative relevance separately and add them with coefficients
-                flat_positive_impact = tf.maximum(flat_impact, 0)
-                flat_positive_normalizer = tf.reduce_sum(flat_positive_impact, axis=0, keep_dims=True) + eps
-                flat_positive_relevance = flat_positive_impact / flat_positive_normalizer
-
-                flat_negative_impact = tf.minimum(flat_impact, 0)
-                flat_negative_normalizer = tf.reduce_sum(flat_negative_impact, axis=0, keep_dims=True) - eps
-                flat_negative_relevance = flat_negative_impact / flat_negative_normalizer
-                flat_total_relevance_transition = alpha * flat_positive_relevance + beta * flat_negative_relevance
+            if cls.beta != 0 and f_negative is not None:
+                z_negative = f_negative(*inps)
+                s_negative = -cls.beta * output_relevance / z_negative  # [*dims, out_size]
+                negative_relevances = tf.gradients(z_negative, inps, grad_ys=s_negative)
+                # ^-- list of [*dims, inp_size]
             else:
-                flat_impact_normalizer = tf.reduce_sum(flat_impact, axis=0, keep_dims=True)
-                flat_impact_normalizer += eps * (1. - 2. * tf.to_float(tf.less(flat_impact_normalizer, 0)))
-                flat_total_relevance_transition = flat_impact / flat_impact_normalizer
-                # note: we do not use tf.sign(z) * eps because tf.sign(0) = 0, so zeros will not go away
+                negative_relevances = [0.0] * len(inps)
 
-            flat_input_relevance = tf.einsum('o,oi->i', flat_output_relevance, flat_total_relevance_transition)
-            # ^-- [combined_input_size]
+            inp_relevances = [
+                inp * (rel_pos + rel_neg)
+                for inp, rel_pos, rel_neg in zip(inps, positive_relevances, negative_relevances)
+            ]
 
-            # 5. unpack flat_inp_relevance back into individual tensors
-            input_relevances = []
-            offset = tf.constant(0, dtype=output_size.dtype)
-            for inp in inps:
-                inp_size = tf.shape(tf.reshape(inp, [-1]))[0]
-                inp_relevance = tf.reshape(flat_input_relevance[offset: offset + inp_size], tf.shape(inp))
-                inp_relevance.set_shape(inp.shape)
-                input_relevances.append(inp_relevance)
-                offset = offset + inp_size
+            return cls.rescale(output_relevance, *inp_relevances)
 
-            return cls.rescale(output_relevance, *input_relevances, batch_axes=batch_axes, **kwargs)
 
     @classmethod
-    def rescale(cls, reference, *inputs, batch_axes=(0,)):
-        assert isinstance(batch_axes, (tuple, list))
-        get_summation_axes = lambda tensor: tuple(i for i in range(tensor.shape.ndims) if i not in batch_axes)
-        ref_scale = tf.reduce_sum(abs(reference), axis=get_summation_axes(reference), keep_dims=True)
-        inp_scales = [tf.reduce_sum(abs(inp), axis=get_summation_axes(inp), keep_dims=True) for inp in inputs]
+    def rescale(cls, reference, *inputs,  axis=None):
+        inputs = [cls.crop_function(inp) for inp in inputs]
+        ref_scale = tf.reduce_sum(reference, axis=axis, keep_dims=axis is not None)
+        inp_scales = [tf.reduce_sum(inp, axis=axis, keep_dims=axis is not None) for inp in inputs]
         total_inp_scale = sum(inp_scales) + cls.eps
         inputs = [inp * (ref_scale / total_inp_scale) for inp in inputs]
         return inputs[0] if len(inputs) == 1 else inputs
-
