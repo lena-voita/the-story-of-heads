@@ -74,7 +74,7 @@ For the dropout on the target side, replace `inp_word_dropout` with `out_word_dr
 
 (We assume you read the paper and understand what MRT is and how it works.)
 
-In the [scripts](./scripts) folder you can find file `train_mrt.sh` with the example of a training config for MRT problem. In the following, we explain how it is different from the baseline config.
+In the [scripts](../scripts) folder you can find file `train_mrt.sh` with the example of a training config for MRT problem. In the following, we explain how it is different from the baseline config.
 
 To set the Minimum Risk Training objective, change the problem correspondigly:
 ```
