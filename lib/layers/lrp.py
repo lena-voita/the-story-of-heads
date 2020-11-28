@@ -37,7 +37,7 @@ class LRP:
         computes input relevance given output_relevance using z+ rule
         works for linear layers, convolutions, poolings, etc.
         notation from DOI:10.1371/journal.pone.0130140, Eq 60
-        :param function: forward function with
+        :param function: forward function
             if there's no weights, set f_negative to None. Only used for alpha-beta LRP
         :param output_relevance: relevance w.r.t. layer output
         :param inps: a list of layer inputs
