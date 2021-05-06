@@ -4,7 +4,7 @@
 <img src="../resources/src_dst_main.gif" 
 	title="paper logo" width="400" align="right"/>
 
-In this part, we discuss experiments from the paper [Analyzing the Source and Target Contributions to Predictions in Neural Machine Translation](https://arxiv.org/pdf/2010.10907.pdf).
+In this part, we discuss experiments from the ACL 2021 paper [Analyzing the Source and Target Contributions to Predictions in Neural Machine Translation](https://arxiv.org/pdf/2010.10907.pdf).
 
 For more details, look at the [blog post](https://lena-voita.github.io/posts/source_target_contributions_to_nmt.html)!
 		
