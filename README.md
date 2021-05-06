@@ -2,8 +2,8 @@
 
 
 This is the official repo for the following papers:
-* [Analyzing Multi-Head Self-Attention: Specialized Heads Do the Heavy Lifting, the Rest Can Be Pruned](https://www.aclweb.org/anthology/P19-1580) (ACL 2019)
-* [Analyzing the Source and Target Contributions to Predictions in Neural Machine Translation](https://arxiv.org/pdf/2010.10907.pdf)
+* (ACL 2019) [Analyzing Multi-Head Self-Attention: Specialized Heads Do the Heavy Lifting, the Rest Can Be Pruned](https://www.aclweb.org/anthology/P19-1580)
+* (ACL 2021) [Analyzing the Source and Target Contributions to Predictions in Neural Machine Translation](https://arxiv.org/pdf/2010.10907.pdf)
 <img src="./resources/acl_empty.png" title="conf logo"/>
 <img src="./resources/acl19_heads-min_pad.png" 
 	title="paper logo" width="600"/>
