@@ -10,12 +10,15 @@ For more details, look at the [blog post](https://lena-voita.github.io/posts/sou
 		
 #### Bibtex
 ```
-@misc{voita2020analyzing,
-      title={Analyzing the Source and Target Contributions to Predictions in Neural Machine Translation}, 
-      author={Elena Voita and Rico Sennrich and Ivan Titov},
-      year={2020},
-      booktitle = "{{arXiv}:2010.10907}",
-      url = "https://arxiv.org/abs/2010.10907",
+@InProceedings{voita2021analyzing,
+    title={Analyzing the Source and Target Contributions to Predictions in Neural Machine Translation},
+    author={Elena Voita and Rico Sennrich and Ivan Titov},
+    booktitle = "Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics",
+    month = aug,
+    year = "2021",
+    address = "Online",
+    publisher = "Association for Computational Linguistics",
+    url = "https://arxiv.org/pdf/2010.10907.pdf",
 }
 ```
 
