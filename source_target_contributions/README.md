@@ -21,6 +21,7 @@ For more details, look at the [blog post](https://lena-voita.github.io/posts/sou
     url = "https://arxiv.org/pdf/2010.10907.pdf",
 }
 ```
+__Important!__ Please use the arXiv version of the paper: it has more accurace results with the updated version of the LRP code (big thanks to Wenxu Li for noticing an error in the first version of our code!).
 
 ### Table of Contents
 
