@@ -29,6 +29,7 @@ class LRP:
     eps = 1e-5
     use_alpha_beta = True  # if False, uses simplified LRP rule:  R_i =  R_j * z_ji / ( z_j + eps * sign(z_j) )
     consider_attn_constant = False  # used by MultiHeadAttn, considers gradient w.r.t q/k zeros
+    norm_axis = 1
 
     @classmethod
     def relprop(cls, function, output_relevance, *inps, reference_inputs=None,
@@ -83,15 +84,15 @@ class LRP:
             if cls.use_alpha_beta:
                 # 3. normalize positive and negative relevance separately and add them with coefficients
                 flat_positive_impact = tf.maximum(flat_impact, 0)
-                flat_positive_normalizer = tf.reduce_sum(flat_positive_impact, axis=0, keep_dims=True) + eps
+                flat_positive_normalizer = tf.reduce_sum(flat_positive_impact, axis=cls.norm_axis, keep_dims=True) + eps
                 flat_positive_relevance = flat_positive_impact / flat_positive_normalizer
 
                 flat_negative_impact = tf.minimum(flat_impact, 0)
-                flat_negative_normalizer = tf.reduce_sum(flat_negative_impact, axis=0, keep_dims=True) - eps
+                flat_negative_normalizer = tf.reduce_sum(flat_negative_impact, axis=cls.norm_axis, keep_dims=True) - eps
                 flat_negative_relevance = flat_negative_impact / flat_negative_normalizer
                 flat_total_relevance_transition = alpha * flat_positive_relevance + beta * flat_negative_relevance
             else:
-                flat_impact_normalizer = tf.reduce_sum(flat_impact, axis=0, keep_dims=True)
+                flat_impact_normalizer = tf.reduce_sum(flat_impact, axis=cls.norm_axis, keep_dims=True)
                 flat_impact_normalizer += eps * (1. - 2. * tf.to_float(tf.less(flat_impact_normalizer, 0)))
                 flat_total_relevance_transition = flat_impact / flat_impact_normalizer
                 # note: we do not use tf.sign(z) * eps because tf.sign(0) = 0, so zeros will not go away
@@ -121,3 +122,33 @@ class LRP:
         inputs = [inp * (ref_scale / total_inp_scale) for inp in inputs]
         return inputs[0] if len(inputs) == 1 else inputs
 
+
+def relprop_add(output_relevance, *inputs, hid_axis=-1, **kwargs):
+    """ relprop through elementwise addition of tensors of the same shape """
+    input_shapes = [tf.shape(x) for x in inputs]
+    tiled_input_shape = reduce(tf.broadcast_dynamic_shape, input_shapes)
+    inputs_tiled = [tf.tile(inp, tiled_input_shape // inp_shape) for inp, inp_shape in zip(inputs, input_shapes)]
+    hid_size = tf.shape(inputs[0])[hid_axis]
+    inputs_tiled_flat = [tf.reshape(inp, [-1, hid_size]) for inp in inputs_tiled]
+    output_relevance_flat = tf.reshape(output_relevance, [-1, hid_size])
+    flat_input_relevances_tiled = tf.map_fn(
+        lambda i: [x[..., 0, :] for x in
+                   LRP.relprop(lambda *inputs: sum(inputs), output_relevance_flat[i, None],
+                               *[flat_inp[i, None] for flat_inp in inputs_tiled_flat],
+                               jacobians=[tf.eye(hid_size)[None, :, None, :] for _ in range(len(inputs))],
+                               batch_axes=(0,), **kwargs)],
+        elems=tf.range(tf.shape(inputs_tiled_flat[0])[0]),
+        dtype=[flat_inp.dtype for flat_inp in inputs_tiled_flat],
+        parallel_iterations=2 ** 10)
+
+    input_relevances_tiled = list(map(tf.reshape, flat_input_relevances_tiled, [tiled_input_shape] * len(inputs)))
+    input_relevances = list(map(lrp_sum_to_shape, input_relevances_tiled, input_shapes))
+
+    return input_relevances
+
+
+def lrp_sum_to_shape(x, new_shape):
+    summation_axes = tf.where(tf.not_equal(new_shape, tf.shape(x)))[..., 0]
+    x_new = tf.reduce_sum(x, axis=summation_axes, keepdims=True)
+    x_new.set_shape([None] * x.shape.ndims)
+    return LRP.rescale(x, x_new, batch_axes=())

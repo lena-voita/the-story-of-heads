@@ -5,7 +5,7 @@ import lib
 import tensorflow as tf
 from ..util import nop_ctx
 from ..ops import record_activations as rec
-from .lrp import LRP
+from .lrp import LRP, relprop_add
 from ..ops.basic import *
 
 ###############################################################################
@@ -144,11 +144,55 @@ class LayerNorm:
             mean = tf.reduce_mean(inp, axis=[-1], keep_dims=True)
             variance = tf.reduce_mean(tf.square(inp - mean), axis=[-1], keep_dims=True)
             norm_x = (inp - mean) * tf.rsqrt(variance + self.epsilon)
-            return norm_x * self.scale + self.bias
+            out = norm_x * self.scale + self.bias
+            if rec.is_recorded():
+                rec.save_activations(inp=inp, out=out)
+            return out
 
-    def relprop(self, R):
-        #TODO find out the "canonic" way to relrop through layernorm
-        return R
+    def _jacobian(self, inp):
+        assert inp.shape.ndims == 2, "Please reshape your inputs to [batch, dim]"
+        batch_size = tf.shape(inp)[0]
+        hid_size = tf.shape(inp)[1]
+        centered_inp = (inp - tf.reduce_mean(inp, axis=[-1], keep_dims=True))
+        variance = tf.reduce_mean(tf.square(centered_inp), axis=[-1], keep_dims=True)
+        invstd_factor = tf.rsqrt(variance)
+
+        # note: the code below will compute jacobian without taking self.scale into account until the _last_ line
+        jac_out_wrt_invstd_factor = tf.reduce_sum(tf.diag(centered_inp), axis=-1, keepdims=True)
+        jac_out_wrt_variance = jac_out_wrt_invstd_factor * (-0.5 * (variance + self.epsilon) ** (-1.5))[:, :, None,
+                                                           None]
+        jac_out_wrt_squared_difference = jac_out_wrt_variance * tf.fill([hid_size], 1. / tf.to_float(hid_size))
+
+        hid_eye = tf.eye(hid_size, hid_size)[None, :, None, :]
+        jac_out_wrt_centered_inp = tf.diag(
+            invstd_factor) * hid_eye + jac_out_wrt_squared_difference * 2 * centered_inp
+        jac_out_wrt_inp = jac_out_wrt_centered_inp - tf.reduce_mean(jac_out_wrt_centered_inp, axis=-1,
+                                                                    keep_dims=True)
+        return jac_out_wrt_inp * self.scale[None, :, None, None]
+
+    def relprop(self, output_relevance):
+        """
+        computes input relevance given output_relevance
+        :param output_relevance: relevance w.r.t. layer output, [*dims, out_size]
+        notation from DOI:10.1371/journal.pone.0130140, Eq 60
+        """
+        with tf.variable_scope(self.name):
+            inp, out = rec.get_activations('inp', 'out')
+            # inp: [*dims, inp_size], out: [*dims, out_size]
+            return self.relprop_explicit(output_relevance, inp)
+
+    def relprop_explicit(self, output_relevance, inp):
+        """ a version of relprop that accepts manually specified inputs instead of using collections """
+        # note: we apply relprop for each independent sample in order to avoid quadratic memory requirements
+        flat_inp = tf.reshape(inp, [-1, tf.shape(inp)[-1]])
+        flat_out_relevance = tf.reshape(output_relevance, [-1, tf.shape(output_relevance)[-1]])
+
+        flat_inp_relevance = tf.map_fn(
+            lambda i: LRP.relprop(self, flat_out_relevance[i, None], flat_inp[i, None],
+                                  jacobians=[self._jacobian(flat_inp[i, None])], batch_axes=(0,))[0],
+            elems=tf.range(tf.shape(flat_inp)[0]), dtype=inp.dtype, parallel_iterations=2 ** 10)
+        input_relevance = LRP.rescale(output_relevance, tf.reshape(flat_inp_relevance, tf.shape(inp)))
+        return input_relevance
 
 ## ----------------------------------------------------------------------------
 #                               ResidualWrapper
@@ -214,8 +258,9 @@ class ResidualLayerWrapper(Wrapper):
                     if is_dropout_enabled():
                         out = lib.ops.dropout(out, 1.0 - self.dropout, seed=self.dropout_seed)
                 elif s == 'a':
-                    rec.save_activations(inp=inp, out_pre_residual=out)
-                    out += inp
+                    if rec.is_recorded():
+                        rec.save_activations(residual_inp=inp, residual_update=out)
+                    out = out + inp
                 elif s == 'n':
                     out = self.norm_layer(out)
                 else:
@@ -223,6 +268,8 @@ class ResidualLayerWrapper(Wrapper):
             return out
 
     def relprop(self, R, main_key=None):
+        with tf.variable_scope(self.scope):
+            residual_inp, residual_update = rec.get_activations('residual_inp', 'residual_update')
         original_scale = tf.reduce_sum(abs(R))
         with tf.variable_scope(self.scope):
             Rinp_residual = 0.0
@@ -234,8 +281,8 @@ class ResidualLayerWrapper(Wrapper):
                         R_dict = R
                         R = R_dict[main_key]
                 elif s == 'a':
-                    # residual layer: split relevance equally between two branches
-                    Rinp_residual, R = LRP.rescale(R, R, R, batch_axes=tuple(range(R.shape.ndims - 1)))
+                    # residual layer: LRP through addition
+                    Rinp_residual, R = relprop_add(R, residual_inp, residual_update)
                 elif s == 'n':
                     R = self.norm_layer.relprop(R)
 

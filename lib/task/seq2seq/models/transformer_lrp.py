@@ -205,6 +205,9 @@ class Transformer:
 
     def relprop_decode(self, R):
         """ propagates relevances from rdo to output embeddings and encoder state """
+        if self.normalize_out:
+            R = self.dec_out_norm.relprop(R)
+
         R_enc = 0.0
         R_enc_scale = 0.0
         for layer in range(self.num_layers_dec)[::-1]:
@@ -224,6 +227,8 @@ class Transformer:
 
     def relprop_encode(self, R):
         """ propagates relevances from enc_out to emb_inp """
+        if self.normalize_out:
+            R = self.enc_out_norm.relprop(R)
         for layer in range(self.num_layers_enc)[::-1]:
             R = self.enc_ffn[layer].relprop(R)
             R = self.enc_attn[layer].relprop(R)
